@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Strengths Explorer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f5f0e8;
+    --accent: #c8552a;
+    --accent2: #4a7c59;
+    --muted: #8a8070;
+    --card: #fffdf8;
+    --border: #d4cfc5;
+    --progress-bg: #e8e3da;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 60px 24px 100px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 56px;
+    text-align: center;
+  }
+
+  .header-tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 14px;
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .header-sub {
+    color: var(--muted);
+    font-size: 1rem;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--paper);
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .progress-bar {
+    height: 3px;
+    background: var(--progress-bg);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 56px;
+    animation: fadeUp 0.5s ease forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .section:nth-child(1) { animation-delay: 0.05s; }
+  .section:nth-child(2) { animation-delay: 0.1s; }
+  .section:nth-child(3) { animation-delay: 0.15s; }
+  .section:nth-child(4) { animation-delay: 0.2s; }
+  .section:nth-child(5) { animation-delay: 0.25s; }
+  .section:nth-child(6) { animation-delay: 0.3s; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--border);
+    line-height: 1;
+    min-width: 36px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-weight: 400;
+  }
+
+  .section-icon {
+    margin-left: auto;
+    font-size: 1.4rem;
+  }
+
+  /* Question card */
+  .question {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    border-radius: 2px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .question:hover {
+    border-color: var(--muted);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  }
+
+  .question.answered {
+    border-left: 3px solid var(--accent2);
+  }
+
+  .question-label {
+    font-size: 0.95rem;
+    font-weight: 400;
+    margin-bottom: 16px;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+
+  .question-hint {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 14px;
+    font-style: italic;
+  }
+
+  /* Likert scale */
+  .likert {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .likert-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0 2px;
+  }
+
+  .likert-options {
+    display: flex;
+    gap: 10px;
+  }
+
+  .likert-option {
+    flex: 1;
+  }
+
+  .likert-option input[type="radio"] { display: none; }
+
+  .likert-option label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--muted);
+    transition: all 0.15s ease;
+    background: var(--paper);
+  }
+
+  .likert-option input:checked + label {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+
+  .likert-option label:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+
+  /* Multiple choice */
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .choice-option input[type="radio"],
+  .choice-option input[type="checkbox"] { display: none; }
+
+  .choice-option label {
+    display: block;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    transition: all 0.15s ease;
+    background: var(--paper);
+    border-radius: 2px;
+  }
+
+  .choice-option input:checked + label {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+
+  .choice-option label:hover {
+    border-color: var(--ink);
+  }
+
+  /* Textarea */
+  textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--ink);
+    background: var(--paper);
+    resize: vertical;
+    min-height: 90px;
+    outline: none;
+    transition: border-color 0.2s ease;
+    line-height: 1.5;
+  }
+
+  textarea:focus { border-color: var(--ink); }
+
+  textarea::placeholder { color: var(--border); }
+
+  /* Ranking */
+  .ranking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .rank-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    cursor: grab;
+    user-select: none;
+    transition: all 0.15s ease;
+    font-size: 0.85rem;
+  }
+
+  .rank-item:hover { border-color: var(--muted); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .rank-item.dragging { opacity: 0.4; }
+  .rank-item.drag-over { border-color: var(--accent); background: var(--card); }
+
+  .rank-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--muted);
+    min-width: 24px;
+    font-weight: 700;
+  }
+
+  .drag-handle { color: var(--border); font-size: 1rem; margin-left: auto; cursor: grab; }
+
+  /* Submit */
+  .submit-wrap {
+    text-align: center;
+    margin-top: 60px;
+  }
+
+  .submit-btn {
+    display: inline-block;
+    padding: 16px 48px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+  }
+
+  .submit-btn:hover { background: var(--accent); transform: translateY(-1px); }
+
+  .submit-note {
+    margin-top: 12px;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  /* Results Panel */
+  #results {
+    display: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 40px;
+    margin-top: 56px;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  #results h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+  }
+
+  #results .results-subtitle {
+    color: var(--muted);
+    margin-bottom: 32px;
+    font-size: 0.9rem;
+  }
+
+  .strength-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .strength-card {
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+  }
+
+  .strength-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    margin-bottom: 6px;
+  }
+
+  .strength-card p {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .strength-bar-wrap {
+    height: 3px;
+    background: var(--progress-bg);
+    margin-top: 10px;
+    border-radius: 2px;
+  }
+
+  .strength-bar {
+    height: 100%;
+    background: var(--accent2);
+    border-radius: 2px;
+    transition: width 0.8s ease;
+    width: 0;
+  }
+
+  .result-insight {
+    background: var(--paper);
+    border-left: 3px solid var(--accent);
+    padding: 16px 20px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .result-insight strong {
+    font-weight: 500;
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+
+  /* Responsive */
+  @media (max-width: 560px) {
+    .choices { grid-template-columns: 1fr; }
+    .strength-grid { grid-template-columns: 1fr; }
+    .likert-options { gap: 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-tag">Self-Discovery</div>
+    <h1>Know Your<br><em>True Strengths</em></h1>
+    <p class="header-sub">Answer honestly. There are no right or wrong answers — only more or less truthful ones.</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-info">
+      <span>Progress</span>
+      <span id="progress-text">0 / 25 questions</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+  <form id="strengths-form">
+
+    <!-- Section 1: How You Think -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <span class="section-title">How You Think</span>
+        <span class="section-icon">🧠</span>
+      </div>
+
+      <div class="question" id="q1">
+        <div class="question-label">When you encounter a complex problem, what's your instinctive first move?</div>
+        <div class="choices" style="grid-template-columns:1fr;">
+          <div class="choice-option"><input type="radio" name="q1" id="q1a" value="analytical"><label for="q1a">I break it into smaller parts and analyze each component logically</label></div>
+          <div class="choice-option"><input type="radio" name="q1" id="q1b" value="intuitive"><label for="q1b">I trust my gut and see the whole picture before diving in</label></div>
+          <div class="choice-option"><input type="radio" name="q1" id="q1c" value="collaborative"><label for="q1c">I talk it through with others to gather different perspectives</label></div>
+          <div class="choice-option"><input type="radio" name="q1" id="q1d" value="action"><label for="q1d">I dive in and learn by experimenting</label></div>
+        </div>
+      </div>
+
+      <div class="question" id="q2">
+        <div class="question-label">How often do you find yourself questioning assumptions others take for granted?</div>
+        <div class="likert">
+          <div class="likert-labels"><span>Rarely</span><span>Sometimes</span><span>Always</span></div>
+          <div class="likert-options">
+            <div class="likert-option"><input type="radio" name="q2" id="q2_1" value="1"><label for="q2_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="q2" id="q2_2" value="2"><label for="q2_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="q2" id="q2_3" value="3"><label for="q2_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="q2" id="q2_4" value="4"><label for="q2_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="q2" id="q2_5" value="5"><label for="q2_5">5</label></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="question" id="q3">
+        <div class="question-label">Recall a time you made a difficult decision. What guided you most?</div>
+        <div class="choices" style="grid-template-columns:1fr 1fr;">
+          <div class="choice-option"><input type="radio" name="q3" id="q3a" value="data"><label for="q3a">Data and evidence</label></div>
+          <div class="choice-option"><input type="radio" name="q3" id="q3b" value="values"><label for="q3b">Personal values</label></div>
+          <div class="choice-option"><input type="radio" name="q3" id="q3c" value="advice"><label for="q3c">Others' advice</label></div>
+          <div class="choice-option"><input type="radio" name="q3" id="q3d" value="instinct"><label for="q3d">Pure instinct</label></div>
+        </div>
+      </div>
+
+      <div class="question" id="q4">
+        <div class="question-label">When you're at your mental sharpest, what are you typically doing?</div>
+        <textarea name="q4" placeholder="e.g. solving a puzzle, writing, deep in conversation, building something…" rows="3"></textarea>
+      </div>
+    </div>
+
+    <!-- Section 2: How You Work -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <span class="section-title">How You Work</span>
+        <span class="section-icon">⚡</span>
+      </div>
+
+      <div class="question" id="q5">
+        <div class="question-label">You have a big project due in 2 weeks. How do you naturally approach it?</div>
+        <div class="choices" style="grid-template-columns:1fr;">
+          <div class="choice-option"><input type="radio" name="q5" id="q5a" value="planner"><label for="q5a">Plan everything upfront — milestones, deadlines, resources</label></div>
+          <div class="choice-option"><input type="radio" name="q5" id="q5b" value="adaptive"><label for="q5b">Start loosely, adapt as I learn more about the challenge</label></div>
+          <div class="choice-option"><input type="radio" name="q5" id="q5c" value="crunch"><label for="q5c">Work in bursts — I do my best under pressure</label></div>
+          <div class="choice-option"><input type="radio" name="q5" id="q5d" value="delegator"><label for="q5d">Immediately identify who can help and delegate strategically</label></div>
+        </div>
+      </div>
+
+      <div class="question" id="q6">
+        <div class="question-label">I maintain focus even when the environment around me is chaotic.</div>
+        <div class="likert">
+          <div class="likert-labels"><span>Strongly Disagree</span><span></span><span>Strongly Agree</span></div>
+          <div class="likert-options">
+            <div class="likert-option"><input type="radio" name="q6" id="q6_1" value="1"><label for="q6_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="q6" id="q6_2" value="2"><label for="q6_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="q6" id="q6_3" value="3"><label for="q6_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="q6" id="q6_4" value="4"><label for="q6_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="q6" id="q6_5" value="5"><label for="q6_5">5</label></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="question" id="q7">
+        <div class="question-label">Think of your proudest professional or personal achievement. What made it possible?</div>
+        <textarea name="q7" placeholder="What specific quality in you made the difference?" rows="3"></textarea>
+      </div>
+
+      <div class="question" id="q8">
+        <div class="question-label">When you encounter a setback, your most common reaction is:</div>
+        <div class="choices" style="grid-template-columns:1fr;">
+          <div class="choice-option"><input type="radio" name="q8" id="q8a" value="resilience"><label for="q8a">Regroup quickly and find a new route forward</label></div>
+          <div class="choice-option"><input type="radio" name="q8" id="q8b" value="reflection"><label for="q8b">Step back and analyze what went wrong before moving on</label></div>
+          <div class="choice-option"><input type="radio" name="q8" id="q8c" value="support"><label for="q8c">Talk to someone I trust and process emotions first</label></div>
+          <div class="choice-option"><input type="radio" name="q8" id="q8d" value="persist"><label for="q8d">Push harder — setbacks fuel my determination</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: How You Connect -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <span class="section-title">How You Connect</span>
+        <span class="section-icon">🤝</span>
+      </div>
+
+      <div class="question" id="q9">
+        <div class="question-label">In a group setting, which role do you most naturally gravitate toward?</div>
+        <div class="choices">
+          <div class="choice-option"><input type="radio" name="q9" id="q9a" value="leader"><label for="q9a">The one who sets direction and rallies others</label></div>
+          <div class="choice-option"><input type="radio" name="q9" id="q9b" value="mediator"><label for="q9b">The peacekeeper who finds common ground</label></div>
+          <div class="choice-option"><input type="radio" name="q9" id="q9c" value="expert"><label for="q9c">The subject-matter expert others turn to</label></div>
+          <div class="choice-option"><input type="radio" name="q9" id="q9d" value="supporter"><label for="q9d">The one who makes sure everyone feels heard</label></div>
+        </div>
+      </div>
+
+      <div class="question" id="q10">
+        <div class="question-label">I can sense how someone is feeling even when they don't say it.</div>
+        <div class="likert">
+          <div class="likert-labels"><span>Strongly Disagree</span><span></span><span>Strongly Agree</span></div>
+          <div class="likert-options">
+            <div class="likert-option"><input type="radio" name="q10" id="q10_1" value="1"><label for="q10_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="q10" id="q10_2" value="2"><label for="q10_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="q10" id="q10_3" value="3"><label for="q10_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="q10" id="q10_4" value="4"><label for="q10_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="q10" id="q10_5" value="5"><label for="q10_5">5</label></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="question" id="q11">
+        <div class="question-label">Describe the last time someone came to you for help. What did you offer them?</div>
+        <textarea name="q11" placeholder="What kind of support did you naturally provide?" rows="3"></textarea>
+      </div>
+
+      <div class="question" id="q12">
+        <div class="question-label">When giving critical feedback, I tend to:</div>
+        <div class="choices" style="grid-template-columns:1fr;">
+          <div class="choice-option"><input type="radio" name="q12" id="q12a" value="direct"><label for="q12a">Be direct and clear — honesty is kinder in the long run</label></div>
+          <div class="choice-option"><input type="radio" name="q12" id="q12b" value="gentle"><label for="q12b">Soften it carefully — I consider emotional impact first</label></div>
+          <div class="choice-option"><input type="radio" name="q12" id="q12c" value="context"><label for="q12c">Frame it constructively with context and examples</label></div>
+          <div class="choice-option"><input type="radio" name="q12" id="q12d" value="avoid"><label for="q12d">Wait for the right moment — timing is everything</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: What Drives You -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <span class="section-title">What Drives You</span>
+        <span class="section-icon">🔥</span>
+      </div>
+
+      <div class="question" id="q13">
+        <div class="question-label">What kind of work makes you lose track of time?</div>
+        <textarea name="q13" placeholder="Be specific — not just 'creative work' but what kind exactly…" rows="3"></textarea>
+      </div>
+
+      <div class="question" id="q14">
+        <div class="question-label">I am primarily motivated by:</div>
+        <div class="choices">
+          <div class="choice-option"><input type="radio" name="q14" id="q14a" value="impact"><label for="q14a">Making a real difference in the world</label></div>
+          <div class="choice-option"><input type="radio" name="q14" id="q14b" value="mastery"><label for="q14b">Becoming exceptional at what I do</label></div>
+          <div class="choice-option"><input type="radio" name="q14" id="q14c" value="recognition"><label for="q14c">Being recognized and valued by others</label></div>
+          <div class="choice-option"><input type="radio" name="q14" id="q14d" value="autonomy"><label for="q14d">Having freedom to work on my own terms</label></div>
+        </div>
+      </div>
+
+      <div class="question" id="q15">
+        <div class="question-label">I find it energizing (not draining) to take on new, unfamiliar challenges.</div>
+        <div class="likert">
+          <div class="likert-labels"><span>Strongly Disagree</span><span></span><span>Strongly Agree</span></div>
+          <div class="likert-options">
+            <div class="likert-option"><input type="radio" name="q15" id="q15_1" value="1"><label for="q15_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="q15" id="q15_2" value="2"><label for="q15_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="q15" id="q15_3" value="3"><label for="q15_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="q15" id="q15_4" value="4"><label for="q15_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="q15" id="q15_5" value="5"><label for="q15_5">5</label></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="question" id="q16">
+        <div class="question-label">If you could spend the next year mastering anything, it would be:</div>
+        <textarea name="q16" placeholder="Don't filter — what genuinely pulls at you?" rows="2"></textarea>
+      </div>
+    </div>
+
+    <!-- Section 5: Your Shadow Side -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <span class="section-title">Your Shadow Side</span>
+        <span class="section-icon">🌑</span>
+      </div>
+
+      <div class="question" id="q17">
+        <div class="question-label">Which of these do people closest to you occasionally criticize you for?</div>
+        <div class="question-hint">Choose honestly — shadow traits are often the flip side of strengths.</div>
+        <div class="choices">
+          <div class="choice-option"><input type="radio" name="q17" id="q17a" value="perfectionism"><label for="q17a">Perfectionism or over-analysis</label></div>
+          <div class="choice-option"><input type="radio" name="q17" id="q17b" value="impulsive"><label for="q17b">Being impulsive or impatient</label></div>
+          <div class="choice-option"><input type="radio" name="q17" id="q17c" value="overcaring"><label for="q17c">Over-giving or losing myself in others</label></div>
+          <div class="choice-option"><input type="radio" name="q17" id="q17d" value="detached"><label for="q17d">Being too independent or emotionally closed</label></div>
+        </div>
+      </div>
+
+      <div class="question" id="q18">
+        <div class="question-label">When I receive criticism, my first internal reaction is:</div>
+        <div class="choices" style="grid-template-columns:1fr;">
+          <div class="choice-option"><input type="radio" name="q18" id="q18a" value="reflect"><label for="q18a">Genuine curiosity — I want to understand the feedback</label></div>
+          <div class="choice-option"><input type="radio" name="q18" id="q18b" value="defend"><label for="q18b">Defensiveness — I need a moment before I can hear it</label></div>
+          <div class="choice-option"><input type="radio" name="q18" id="q18c" value="spiral"><label for="q18c">Self-criticism — I often amplify it beyond its intent</label></div>
+          <div class="choice-option"><input type="radio" name="q18" id="q18d" value="dismiss"><label for="q18d">Skepticism — I assess whether it's valid before taking it in</label></div>
+        </div>
+      </div>
+
+      <div class="question" id="q19">
+        <div class="question-label">I find it genuinely difficult to ask others for help.</div>
+        <div class="likert">
+          <div class="likert-labels"><span>Not at all</span><span></span><span>Very much so</span></div>
+          <div class="likert-options">
+            <div class="likert-option"><input type="radio" name="q19" id="q19_1" value="1"><label for="q19_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="q19" id="q19_2" value="2"><label for="q19_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="q19" id="q19_3" value="3"><label for="q19_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="q19" id="q19_4" value="4"><label for="q19_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="q19" id="q19_5" value="5"><label for="q19_5">5</label></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 6: Rank Your Strengths -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <span class="section-title">Rank Your Strengths</span>
+        <span class="section-icon">✦</span>
+      </div>
+
+      <div class="question" id="q20">
+        <div class="question-label">Drag to rank these from <strong>most</strong> to <strong>least</strong> like you:</div>
+        <div class="question-hint">Top = most characteristic of you. Be honest, not aspirational.</div>
+        <div class="ranking-list" id="rank-list">
+          <div class="rank-item" draggable="true" data-value="strategic"><span class="rank-num">1</span>Strategic thinking — seeing patterns and long-term implications<span class="drag-handle">⠿</span></div>
+          <div class="rank-item" draggable="true" data-value="empathetic"><span class="rank-num">2</span>Empathy — feeling what others feel and responding to it<span class="drag-handle">⠿</span></div>
+          <div class="rank-item" draggable="true" data-value="creative"><span class="rank-num">3</span>Creativity — generating novel ideas and unexpected solutions<span class="drag-handle">⠿</span></div>
+          <div class="rank-item" draggable="true" data-value="execution"><span class="rank-num">4</span>Execution — turning plans into reality, consistently<span class="drag-handle">⠿</span></div>
+          <div class="rank-item" draggable="true" data-value="communication"><span class="rank-num">5</span>Communication — making complex things clear and compelling<span class="drag-handle">⠿</span></div>
+          <div class="rank-item" draggable="true" data-value="resilience"><span class="rank-num">6</span>Resilience — bouncing back and adapting under pressure<span class="drag-handle">⠿</span></div>
+        </div>
+      </div>
+
+      <div class="question" id="q21">
+        <div class="question-label">What's one strength you have that almost no one knows about?</div>
+        <textarea name="q21" placeholder="The hidden quality that surprises people when they discover it…" rows="3"></textarea>
+      </div>
+
+      <div class="question" id="q22">
+        <div class="question-label">What would your best friend say is your single greatest quality?</div>
+        <textarea name="q22" placeholder="Try to hear their voice as you answer this…" rows="2"></textarea>
+      </div>
+
+      <div class="question" id="q23">
+        <div class="question-label">In 10 years, the version of you that's fully realized will be known for:</div>
+        <textarea name="q23" placeholder="What legacy or reputation are you building?" rows="3"></textarea>
+      </div>
+
+      <div class="question" id="q24">
+        <div class="question-label">The strength I most want to develop further is:</div>
+        <div class="choices">
+          <div class="choice-option"><input type="radio" name="q24" id="q24a" value="leadership"><label for="q24a">Leadership</label></div>
+          <div class="choice-option"><input type="radio" name="q24" id="q24b" value="creativity"><label for="q24b">Creative thinking</label></div>
+          <div class="choice-option"><input type="radio" name="q24" id="q24c" value="eq"><label for="q24c">Emotional intelligence</label></div>
+          <div class="choice-option"><input type="radio" name="q24" id="q24d" value="discipline"><label for="q24d">Discipline & focus</label></div>
+        </div>
+      </div>
+
+      <div class="question" id="q25">
+        <div class="question-label">Looking back, when were you most proudly and authentically yourself?</div>
+        <textarea name="q25" placeholder="Describe the situation — what made it feel so right?" rows="3"></textarea>
+      </div>
+    </div>
+
+    <div class="submit-wrap">
+      <button type="button" class="submit-btn" onclick="generateResults()">Reveal My Strengths Profile</button>
+      <p class="submit-note">Your answers stay private — nothing is sent anywhere.</p>
+    </div>
+  </form>
+
+  <!-- Results -->
+  <div id="results">
+    <h2>Your Strengths Profile</h2>
+    <p class="results-subtitle">Based on your responses, here are the patterns that emerge:</p>
+    <div id="results-content"></div>
+  </div>
+
+</div>
+
+<script>
+  // Progress tracking
+  const totalQ = 25;
+  const answered = new Set();
+
+  function updateProgress() {
+    const fill = document.getElementById('progress-fill');
+    const text = document.getElementById('progress-text');
+    const pct = Math.round((answered.size / totalQ) * 100);
+    fill.style.width = pct + '%';
+    text.textContent = `${answered.size} / ${totalQ} questions`;
+  }
+
+  document.querySelectorAll('input[type="radio"], textarea').forEach(el => {
+    el.addEventListener('change', () => {
+      const name = el.name || el.closest('.question').id;
+      if (el.value || (el.tagName === 'TEXTAREA' && el.value.trim())) {
+        answered.add(name);
+        el.closest('.question').classList.add('answered');
+      }
+      updateProgress();
+    });
+    if (el.tagName === 'TEXTAREA') {
+      el.addEventListener('input', () => {
+        if (el.value.trim()) {
+          answered.add(el.name || el.closest('.question').id);
+          el.closest('.question').classList.add('answered');
+          updateProgress();
+        }
+      });
+    }
+  });
+
+  // Drag-to-rank
+  const rankList = document.getElementById('rank-list');
+  let dragItem = null;
+
+  rankList.querySelectorAll('.rank-item').forEach(item => {
+    item.addEventListener('dragstart', () => { dragItem = item; item.classList.add('dragging'); });
+    item.addEventListener('dragend', () => { item.classList.remove('dragging'); dragItem = null; updateRankNums(); answered.add('ranking'); updateProgress(); });
+    item.addEventListener('dragover', e => { e.preventDefault(); item.classList.add('drag-over'); });
+    item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      item.classList.remove('drag-over');
+      if (dragItem && dragItem !== item) {
+        const allItems = [...rankList.querySelectorAll('.rank-item')];
+        const dragIndex = allItems.indexOf(dragItem);
+        const dropIndex = allItems.indexOf(item);
+        if (dragIndex < dropIndex) {
+          rankList.insertBefore(dragItem, item.nextSibling);
+        } else {
+          rankList.insertBefore(dragItem, item);
+        }
+      }
+    });
+  });
+
+  function updateRankNums() {
+    rankList.querySelectorAll('.rank-item').forEach((item, i) => {
+      item.querySelector('.rank-num').textContent = i + 1;
+    });
+  }
+
+  // Results generation
+  function generateResults() {
+    const form = document.getElementById('strengths-form');
+
+    // Gather signals
+    const thinkingStyle = form.querySelector('input[name="q1"]:checked')?.value;
+    const decisionGuide = form.querySelector('input[name="q3"]:checked')?.value;
+    const workStyle = form.querySelector('input[name="q5"]:checked')?.value;
+    const groupRole = form.querySelector('input[name="q9"]:checked')?.value;
+    const motivation = form.querySelector('input[name="q14"]:checked')?.value;
+    const shadow = form.querySelector('input[name="q17"]:checked')?.value;
+    const growthGoal = form.querySelector('input[name="q24"]:checked')?.value;
+
+    // Likert averages
+    const curiosityScore = parseInt(form.querySelector('input[name="q2"]:checked')?.value || 3);
+    const focusScore = parseInt(form.querySelector('input[name="q6"]:checked')?.value || 3);
+    const empathyScore = parseInt(form.querySelector('input[name="q10"]:checked')?.value || 3);
+    const noveltyScore = parseInt(form.querySelector('input[name="q15"]:checked')?.value || 3);
+
+    // Top ranked strength
+    const topRank = rankList.querySelector('.rank-item')?.dataset.value || 'strategic';
+
+    // Build profile
+    const thinkingMap = {
+      analytical: { name: 'Analytical Mind', desc: 'You decompose complexity into manageable parts. Your strength lies in structured reasoning, precision, and the patience to understand before acting.' },
+      intuitive: { name: 'Visionary Thinker', desc: 'You see wholes before parts. Pattern recognition and big-picture thinking are your edge — you sense what others are still working to articulate.' },
+      collaborative: { name: 'Collective Intelligence', desc: 'You know wisdom lives in the room. Your strength is creating conditions where others think better, and you synthesize that into insight.' },
+      action: { name: 'Iterative Learner', desc: 'You learn by doing. Your strength is momentum — you generate more real-world insight in one experiment than others gain in months of planning.' }
+    };
+
+    const motivationMap = {
+      impact: { name: 'Purpose-Driven', score: 90 },
+      mastery: { name: 'Growth-Oriented', score: 85 },
+      recognition: { name: 'Influence-Seeking', score: 75 },
+      autonomy: { name: 'Self-Directed', score: 80 }
+    };
+
+    const roleMap = {
+      leader: 'You carry authority naturally — people orient toward you in uncertainty.',
+      mediator: 'You create safety in tension. This is rarer and more valuable than it appears.',
+      expert: 'Depth over breadth. Your credibility is earned through substance.',
+      supporter: 'You make others feel seen. This builds the loyalty money cannot buy.'
+    };
+
+    const shadowMap = {
+      perfectionism: 'Your shadow side — perfectionism — is the cost of high standards. Managed well, it becomes a superpower.',
+      impulsive: 'Impatience often signals passion. The challenge is channeling it without burning others.',
+      overcaring: 'Over-giving reflects deep empathy. Setting boundaries will free you to give more sustainably.',
+      detached: 'Independence signals self-reliance. The growth edge is trusting others with the parts you protect.'
+    };
+
+    const thinking = thinkingMap[thinkingStyle] || thinkingMap.analytical;
+    const motiv = motivationMap[motivation] || motivationMap.mastery;
+
+    const resultsHTML = `
+      <div class="strength-grid">
+        <div class="strength-card">
+          <h3>Thinking Style</h3>
+          <p>${thinking.name}</p>
+          <p style="margin-top:6px;font-size:0.78rem;">${thinking.desc}</p>
+          <div class="strength-bar-wrap"><div class="strength-bar" style="width:${curiosityScore * 20}%"></div></div>
+        </div>
+        <div class="strength-card">
+          <h3>Core Motivation</h3>
+          <p>${motiv.name}</p>
+          <p style="margin-top:6px;font-size:0.78rem;">This is what gets you out of bed. Align your work here and output follows naturally.</p>
+          <div class="strength-bar-wrap"><div class="strength-bar" style="width:${motiv.score}%"></div></div>
+        </div>
+        <div class="strength-card">
+          <h3>Empathy Index</h3>
+          <p>${empathyScore >= 4 ? 'High Relational Attunement' : empathyScore >= 3 ? 'Balanced Social Awareness' : 'Pragmatic Independence'}</p>
+          <p style="margin-top:6px;font-size:0.78rem;">Your capacity to read and respond to others' emotional landscape.</p>
+          <div class="strength-bar-wrap"><div class="strength-bar" style="width:${empathyScore * 20}%"></div></div>
+        </div>
+        <div class="strength-card">
+          <h3>Adaptability</h3>
+          <p>${noveltyScore >= 4 ? 'High Tolerance for Novelty' : noveltyScore >= 3 ? 'Moderate Flexibility' : 'Prefers Stability'}</p>
+          <p style="margin-top:6px;font-size:0.78rem;">How energized vs. drained you feel by new, unfamiliar challenges.</p>
+          <div class="strength-bar-wrap"><div class="strength-bar" style="width:${noveltyScore * 20}%"></div></div>
+        </div>
+      </div>
+
+      ${groupRole ? `<div class="result-insight"><strong>Your Natural Role</strong>${roleMap[groupRole]}</div>` : ''}
+      ${shadow ? `<div class="result-insight"><strong>Shadow to Watch</strong>${shadowMap[shadow]}</div>` : ''}
+      <div class="result-insight"><strong>Top Self-Ranked Strength</strong>You placed <em>${topRank}</em> at the top. This is where you feel most alive and capable — lean into it intentionally.</div>
+      ${growthGoal ? `<div class="result-insight"><strong>Growth Edge</strong>You want to deepen <em>${growthGoal}</em>. This signals where your next chapter of growth lives.</div>` : ''}
+    `;
+
+    const resultsEl = document.getElementById('results');
+    document.getElementById('results-content').innerHTML = resultsHTML;
+    resultsEl.style.display = 'block';
+    resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Animate bars
+    setTimeout(() => {
+      resultsEl.querySelectorAll('.strength-bar').forEach(bar => {
+        bar.style.width = bar.style.width;
+      });
+    }, 200);
+  }
+</script>
+</body>
+</html>
